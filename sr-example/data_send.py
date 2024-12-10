@@ -28,6 +28,9 @@ data_length = len(demo_data)
 
 frameId = 0 
 mqtt_frameId = 0
+first_frame_x = 0
+first_frame_y = 0
+
 
 # {”0”:time,”1”:[{”n”:”vehicle1”,”x”:x,”y”:y}, {”n”:”vehicle2”,”x”:x,”y”:y}, {”n”:”vehicle3”,”x”:x,”y”:y}]}
 
@@ -47,13 +50,22 @@ def send_redis_data():
         frameId = 0
         
 def convert_hmi_data(data):
-    data = json.loads(data)
-    result = {
-        "0":data["timestamp"],
-        "1": [{"n": vehicle["id"], "x": vehicle["longitude"], "y": vehicle["latitude"]} for vehicle in data["value"]]
+    global first_frame_x
+    global first_frame_y
+    data = json.loads(data)
+    if first_frame_x == 0:
+        for vehicle in data["value"]:
+            if vehicle["id"] == 0:
+                first_frame_x = vehicle["longitude"]
+                first_frame_y = vehicle["latitude"]
+                break
+    result = {
+        "0":data["timestamp"],
+        "1": [{"n": vehicle["id"], "x": vehicle["longitude"] - first_frame_x, "y": vehicle["latitude"] - first_frame_y} for vehicle in data["value"]]
 
-    }
-    return json.dumps(result)
+    }
+    return json.dumps(result)
+
 
     
         
