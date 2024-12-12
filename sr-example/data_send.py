@@ -56,23 +56,7 @@ def send_redis_data():
     else:
         frameId = 0
         
-def convert_hmi_data(data):
-    global first_frame_x
-    global first_frame_y
-    data = json.loads(data)
-    if first_frame_x == 0:
-        for vehicle in data["value"]:
-            if vehicle["id"] == 0:
-                first_frame_x = vehicle["longitude"]
-                first_frame_y = vehicle["latitude"]
-                break
-    result = {
-        "0":data["timestamp"],
-        "1": [{"n": vehicle["id"], "x": vehicle["longitude"] - first_frame_x, "y": vehicle["latitude"] - first_frame_y} for vehicle in data["value"]]
-
-    }
-    return json.dumps(result)
-
+        
 def convert_data_to_cartesian(data, origin_lon, origin_lat, origin_alt=0.0):
     """
     将原始数据转换为目标数据格式，并进行坐标系转换。
